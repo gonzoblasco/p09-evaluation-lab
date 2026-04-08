@@ -3,8 +3,8 @@
 ## Estado general
 
 - Fase actual: 1 — Setup
-- Última task completada: —
-- Próxima task: T01
+- Última task completada: T01
+- Próxima task: T02
 
 ## Contexto del proyecto
 
@@ -26,7 +26,7 @@ Sin Supabase — no hay persistencia en este proyecto.
 - Eliminar rutas específicas de P06: `app/dashboard/*`, `app/api/analyze-error`
 - Limpiar `package.json`: quitar dependencias de express, @modelcontextprotocol/sdk
 - Actualizar `.env.local.example` con vars de P07 (sin N8N_API_KEY, sin MCP_SERVER_URL)
-- Status: [ ] pendiente
+- Status: [x] completo
 
 ### T02 — Webhook handler
 
