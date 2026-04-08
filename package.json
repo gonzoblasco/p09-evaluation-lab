@@ -43,5 +43,22 @@
     "typescript": "^5",
     "vite-tsconfig-paths": "^6.1.1",
     "vitest": "^4.1.2"
-  }
+  },
+  "description": "Bot de GitHub que analiza Pull Requests con subagents paralelos y comenta los resultados automáticamente.",
+  "main": "index.js",
+  "directories": {
+    "lib": "lib"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/gonzoblasco/p07-ai-code-reviewer.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/gonzoblasco/p07-ai-code-reviewer/issues"
+  },
+  "homepage": "https://github.com/gonzoblasco/p07-ai-code-reviewer#readme"
 }
