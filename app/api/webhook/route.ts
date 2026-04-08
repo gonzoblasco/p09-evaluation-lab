@@ -1,4 +1,7 @@
 import { createHmac, timingSafeEqual } from "crypto";
+import { after } from "next/server";
+import { getPRDiff, postComment } from "@/lib/github";
+import { orchestrate } from "@/lib/orchestrator";
 
 export async function POST(request: Request) {
   const rawBody = await request.text();
@@ -39,21 +42,23 @@ export async function POST(request: Request) {
   const owner: string = body.repository.owner.login;
   const repo: string = body.repository.name;
   const prNumber: number = body.pull_request.number;
-  const headSHA: string = body.pull_request.head.sha;
 
   console.log(`[webhook] PR #${prNumber} en ${owner}/${repo} — acción: ${action}`);
 
   // 4. Responder 200 inmediatamente; el análisis corre async
-  void runAnalysis({ owner, repo, prNumber, headSHA });
+  // `after` garantiza que la promesa se complete incluso en entornos serverless
+  after(runAnalysis(owner, repo, prNumber));
 
   return Response.json({ received: true });
 }
 
-async function runAnalysis(_params: {
-  owner: string;
-  repo: string;
-  prNumber: number;
-  headSHA: string;
-}) {
-  // Implementado en T03/T04
+async function runAnalysis(owner: string, repo: string, prNumber: number) {
+  try {
+    const diff = await getPRDiff(owner, repo, prNumber);
+    const comment = await orchestrate(diff);
+    await postComment(owner, repo, prNumber, comment);
+    console.log(`[webhook] análisis completado — PR #${prNumber}`);
+  } catch (err) {
+    console.error(`[webhook] error en análisis PR #${prNumber}:`, err);
+  }
 }
