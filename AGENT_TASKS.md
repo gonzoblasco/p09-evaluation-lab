@@ -3,8 +3,8 @@
 ## Estado general
 
 - Fase actual: 1 — Setup
-- Última task completada: T01
-- Próxima task: T02
+- Última task completada: T03
+- Próxima task: T04
 
 ## Contexto del proyecto
 
@@ -35,14 +35,14 @@ Sin Supabase — no hay persistencia en este proyecto.
 - Filtrar solo eventos `pull_request` con action `opened` o `synchronize`
 - Extraer: repo owner, repo name, PR number, head SHA
 - Responder 200 inmediatamente (el análisis corre async)
-- Status: [ ] pendiente
+- Status: [x] completo
 
 ### T03 — GitHub client
 
 - Crear `lib/github.ts`
 - Funciones: `getPRDiff(owner, repo, prNumber)` y `postComment(owner, repo, prNumber, body)`
 - Auth: `GITHUB_TOKEN` via Authorization header
-- Status: [ ] pendiente
+- Status: [x] completo
 
 ---
 
