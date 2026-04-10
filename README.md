@@ -1,36 +1,30 @@
-# P07 — AI Code Reviewer
+# P08 — Content Pipeline
 
-Bot de GitHub que analiza Pull Requests con subagents paralelos y comenta los resultados automáticamente.
+Pipeline multi-agente que transforma un tema en contenido publicable, pasando por etapas especializadas con handoffs explícitos.
 
 ## ¿Qué hace?
 
-- Escucha eventos de PR via GitHub Webhook
-- Lanza 3 subagents en paralelo, cada uno con un rol específico:
-  - **security-audit** — detecta vulnerabilidades y patrones inseguros
-  - **test-coverage** — evalúa cobertura y casos faltantes
-  - **conventions** — verifica naming, estructura y convenciones del proyecto
-- Consolida los resultados y los postea como comentario en el PR
+Dado un tema de entrada, el pipeline ejecuta en secuencia:
+
+1. **Idea** — expande el tema en ángulos y enfoque
+2. **Research** — genera contexto, datos relevantes y fuentes sugeridas
+3. **Draft** — redacta el contenido completo
+4. **Edit** — mejora claridad, estructura y tono
+5. **SEO Check** — evalúa y optimiza para búsqueda
+6. **Publish** — genera el artefacto final en markdown listo para publicar
 
 ## Stack
 
-- Next.js 16 + TypeScript (webhook handler)
-- Codex CLI (orquestación de subagents)
-- MCP GitHub (leer diffs, postear comentarios)
-- Anthropic claude-sonnet-4-6 (modelo de cada subagent)
+- Next.js 16 + TypeScript (UI de control del pipeline)
+- Anthropic claude-sonnet-4-6 (modelo de cada agente)
+- Artefactos persistidos en archivos markdown locales
 
 ## Setup
 
 ### 1. Variables de entorno
 
-Copiar `.env.local.example` a `.env.local` y completar:
-
 ```env
-# Anthropic
 ANTHROPIC_API_KEY=
-
-# GitHub
-GITHUB_TOKEN=          # Personal access token con permisos de PR read/write
-GITHUB_WEBHOOK_SECRET= # Secret configurado en el webhook de GitHub
 ```
 
 ### 2. Instalar dependencias
@@ -39,15 +33,7 @@ GITHUB_WEBHOOK_SECRET= # Secret configurado en el webhook de GitHub
 npm install
 ```
 
-### 3. Exponer el webhook en desarrollo
-
-```bash
-# Usar ngrok o similar para exponer localhost
-ngrok http 3000
-# Configurar la URL pública en GitHub → Settings → Webhooks
-```
-
-### 4. Levantar el servidor
+### 3. Levantar
 
 ```bash
 npm run dev
@@ -56,31 +42,21 @@ npm run dev
 ## Arquitectura
 
 ```
-GitHub PR event
-  → Webhook (Next.js /api/webhook)
-    → Codex CLI orchestrator
-      → subagent: security-audit  (paralelo)
-      → subagent: test-coverage   (paralelo)
-      → subagent: conventions     (paralelo)
-    → Consolidar resultados
-  → MCP GitHub → comentario en PR
+Input: tema
+  → Agente: idea
+  → Agente: research
+  → Agente: draft
+  → Agente: edit
+  → Agente: seo-check
+  → Agente: publish
+Output: archivo markdown
 ```
 
 ## Skills entregadas
 
-- `security-audit` — análisis de vulnerabilidades en diffs
-- `test-coverage` — evaluación de cobertura por cambio
-- `conventions` — revisión de convenciones del proyecto
-- `pr-review` — actualización del skill existente (ya en toolkit)
-
-## Desarrollo
-
-```bash
-npm run dev      # Next.js en localhost:3000
-npm run build    # build de producción
-npm run lint     # ESLint
-```
+- `content-pipeline` — patrón de pipeline secuencial con handoffs
+- `seo-agent` — análisis y optimización SEO de contenido
 
 ## Currículum
 
-Proyecto 07 del Full Stack AI Developer curriculum. Primer proyecto multi-agente con subagents paralelos y orquestación via Codex CLI.
+Proyecto 08 del Full Stack AI Developer curriculum. Primer pipeline secuencial completo con handoffs explícitos entre agentes especializados.

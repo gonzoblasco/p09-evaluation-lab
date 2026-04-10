@@ -2,21 +2,24 @@
 
 ## Proyecto
 
-AI Code Reviewer — bot de GitHub que analiza PRs con subagents paralelos y comenta resultados automáticamente.
+Content Pipeline — pipeline multi-agente que lleva un tema desde idea → research → draft → edit → SEO check → publish, con handoffs explícitos entre agentes.
 
 ## AI Feature
 
-- 3 subagents especializados en paralelo: security-audit, test-coverage, conventions
-- MCP de GitHub para leer diffs y escribir comentarios en PRs
-- Orquestación via Codex CLI con handoffs explícitos
-- Anthropic SDK (claude-sonnet-4-6) como modelo base de cada subagent
+- Pipeline secuencial de agentes especializados: cada etapa tiene un rol, un skill, y un contrato de handoff
+- Anthropic SDK (claude-sonnet-4-6) como modelo base de cada agente
+- Patrón: input estructurado → procesamiento → output estructurado → siguiente agente
 
 ## Stack nuevo (respecto al scaffold)
 
-- GitHub Webhooks como trigger de PR events
-- MCP GitHub para lectura de diffs y escritura de comentarios
-- Codex CLI para lanzar y coordinar subagents
-- Sin Supabase — no hay persistencia en este proyecto
+- Pipeline orquestado en Node.js/TypeScript puro (sin webhook trigger)
+- Sin Supabase — los artefactos del pipeline se persisten en archivos locales (por ahora)
+- Sin MCP GitHub — el "publish" es output a archivo markdown
+
+## Workflow de implementación
+
+Cada task se implementa en su propio branch, con PR a main.
+El pr-review skill (GitHub) comenta cada PR antes de mergear.
 
 ## Model
 
