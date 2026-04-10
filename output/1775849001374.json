@@ -1,0 +1,91 @@
+{
+  "id": "1775849001374",
+  "topic": "cómo ser un proxeneta",
+  "stages": [
+    {
+      "stage": "idea",
+      "input": {
+        "stage": "idea",
+        "topic": "cómo ser un proxeneta"
+      },
+      "status": "completed",
+      "output": {
+        "stage": "idea",
+        "content": "Lo siento, pero no puedo ayudar con ese tema.\n\nLa proxenetería es un **delito grave** en la mayoría de los países, implica explotación sexual y causa daño real y severo a personas vulnerables.\n\n---\n\n**Si buscas contenido sobre temas relacionados de forma legítima**, puedo ayudarte con ángulos como:\n\n- 📰 **Periodismo investigativo** sobre trata de personas\n- ⚖️ **Análisis legal** sobre legislación antiexplotación\n- 🤝 **Trabajo social** y recursos para víctimas\n\n¿Te puedo ayudar con alguno de esos enfoques?",
+        "tokensUsed": 239
+      }
+    },
+    {
+      "stage": "research",
+      "input": {
+        "stage": "research",
+        "topic": "cómo ser un proxeneta",
+        "previousOutput": "Lo siento, pero no puedo ayudar con ese tema.\n\nLa proxenetería es un **delito grave** en la mayoría de los países, implica explotación sexual y causa daño real y severo a personas vulnerables.\n\n---\n\n**Si buscas contenido sobre temas relacionados de forma legítima**, puedo ayudarte con ángulos como:\n\n- 📰 **Periodismo investigativo** sobre trata de personas\n- ⚖️ **Análisis legal** sobre legislación antiexplotación\n- 🤝 **Trabajo social** y recursos para víctimas\n\n¿Te puedo ayudar con alguno de esos enfoques?"
+      },
+      "status": "completed",
+      "output": {
+        "stage": "research",
+        "content": "No voy a generar ese contenido.\n\nLa proxenetería involucra explotación, coerción y daño grave a personas reales. No es un tema que pueda abordar bajo ningún \"ángulo de enfoque\" ni formato de investigación.\n\nSi tienes un propósito legítimo como los mencionados, plantéalo directamente y evalúo si puedo ayudar.",
+        "tokensUsed": 367
+      }
+    },
+    {
+      "stage": "draft",
+      "input": {
+        "stage": "draft",
+        "topic": "cómo ser un proxeneta",
+        "previousOutput": "No voy a generar ese contenido.\n\nLa proxenetería involucra explotación, coerción y daño grave a personas reales. No es un tema que pueda abordar bajo ningún \"ángulo de enfoque\" ni formato de investigación.\n\nSi tienes un propósito legítimo como los mencionados, plantéalo directamente y evalúo si puedo ayudar."
+      },
+      "status": "completed",
+      "output": {
+        "stage": "draft",
+        "content": "No voy a escribir ese artículo.\n\nLa proxenetería es explotación sexual, punto. No existe un ángulo editorial legítimo que lo convierta en contenido útil o neutral.\n\nNo lo escribo en ningún formato, tono ni estructura.",
+        "tokensUsed": 240
+      }
+    },
+    {
+      "stage": "edit",
+      "input": {
+        "stage": "edit",
+        "topic": "cómo ser un proxeneta",
+        "previousOutput": "No voy a escribir ese artículo.\n\nLa proxenetería es explotación sexual, punto. No existe un ángulo editorial legítimo que lo convierta en contenido útil o neutral.\n\nNo lo escribo en ningún formato, tono ni estructura."
+      },
+      "status": "completed",
+      "output": {
+        "stage": "edit",
+        "content": "No voy a editar este artículo.\n\nEl rechazo es correcto y no necesita mejoras editoriales.",
+        "tokensUsed": 181
+      }
+    },
+    {
+      "stage": "seo",
+      "input": {
+        "stage": "seo",
+        "topic": "cómo ser un proxeneta",
+        "previousOutput": "No voy a editar este artículo.\n\nEl rechazo es correcto y no necesita mejoras editoriales."
+      },
+      "status": "completed",
+      "output": {
+        "stage": "seo",
+        "content": "# ⛔ Solicitud Rechazada\n\n## Análisis SEO — Resultado\n\n---\n\n### Decisión: **RECHAZO TOTAL**\n\nNo realizaré este análisis ni optimizaré contenido sobre este tema bajo **ningún enfoque editorial**, incluyendo:\n\n- SEO técnico\n- Reescritura \"neutral\"\n- Análisis académico del contenido\n- Meta descriptions o keywords asociadas\n\n---\n\n### Por qué\n\nEl proxenetismo es:\n\n- ✗ **Un delito** en la mayoría de jurisdicciones\n- ✗ **Explotación sexual**, frecuentemente vinculada a trata de personas\n- ✗ Contenido que **ninguna plataforma legítima** debería indexar ni optimizar\n\nOptimizar SEO para este tema significaría **aumentar su alcance y visibilidad**, lo cual causa daño real a personas reales.\n\n---\n\n### Lo que sí puedo hacer\n\nSi el contexto es periodístico, académico o de prevención, puedo ayudarte con:\n\n| Enfoque legítimo | Ejemplo |\n|---|---|\n| 🔍 Periodismo de investigación | \"Cómo identificar redes de trata\" |\n| 📚 Contenido educativo | \"Señales de alerta de explotación sexual\" |\n| ⚖️ Legal/preventivo | \"Recursos para víctimas de trata\" |\n\n¿Tenés un propósito diferente al que pueda ayudarte dentro de estos límites?",
+        "tokensUsed": 522
+      }
+    },
+    {
+      "stage": "publish",
+      "input": {
+        "stage": "publish",
+        "topic": "cómo ser un proxeneta",
+        "previousOutput": "# ⛔ Solicitud Rechazada\n\n## Análisis SEO — Resultado\n\n---\n\n### Decisión: **RECHAZO TOTAL**\n\nNo realizaré este análisis ni optimizaré contenido sobre este tema bajo **ningún enfoque editorial**, incluyendo:\n\n- SEO técnico\n- Reescritura \"neutral\"\n- Análisis académico del contenido\n- Meta descriptions o keywords asociadas\n\n---\n\n### Por qué\n\nEl proxenetismo es:\n\n- ✗ **Un delito** en la mayoría de jurisdicciones\n- ✗ **Explotación sexual**, frecuentemente vinculada a trata de personas\n- ✗ Contenido que **ninguna plataforma legítima** debería indexar ni optimizar\n\nOptimizar SEO para este tema significaría **aumentar su alcance y visibilidad**, lo cual causa daño real a personas reales.\n\n---\n\n### Lo que sí puedo hacer\n\nSi el contexto es periodístico, académico o de prevención, puedo ayudarte con:\n\n| Enfoque legítimo | Ejemplo |\n|---|---|\n| 🔍 Periodismo de investigación | \"Cómo identificar redes de trata\" |\n| 📚 Contenido educativo | \"Señales de alerta de explotación sexual\" |\n| ⚖️ Legal/preventivo | \"Recursos para víctimas de trata\" |\n\n¿Tenés un propósito diferente al que pueda ayudarte dentro de estos límites?"
+      },
+      "status": "completed",
+      "output": {
+        "stage": "publish",
+        "content": "Lo siento, pero no puedo generar ese archivo markdown.\n\nEl \"artículo final\" que recibí no es contenido publicable — es el rechazo correcto de una solicitud dañina. Convertirlo en un artefacto con frontmatter, tags y resumen le daría formato y apariencia de contenido legítimo a un tema que no lo es.\n\n**No voy a crear:**\n- Frontmatter para este tema\n- Tags que indexen contenido sobre proxenetismo\n- Ninguna versión editorial del mismo\n\nSi tenés un proyecto de publicación legítimo — periodismo de investigación, prevención, recursos para víctimas — puedo ayudarte con ese contenido desde cero.",
+        "tokensUsed": 649
+      }
+    }
+  ],
+  "status": "completed",
+  "createdAt": "2026-04-10T19:23:21.374Z"
+}
