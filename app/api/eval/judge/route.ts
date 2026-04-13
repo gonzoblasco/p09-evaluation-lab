@@ -150,13 +150,14 @@ ${actual_response}`
   judgeOutput.score = parseFloat(recalcScore.toFixed(3))
 
   const supabase = await createClient()
-  const { error: updateError } = await supabase
+  const { data: updated, error: updateError } = await supabase
     .from('eval_results')
     .update({
       judge_score: judgeOutput.score,
       judge_reasoning: judgeOutput.reasoning,
     })
     .eq('id', eval_result_id)
+    .select('id')
 
   if (updateError) {
     return NextResponse.json(
@@ -165,6 +166,13 @@ ${actual_response}`
         _warning: `Score not persisted: ${updateError.message}`,
       },
       { status: 200 }
+    )
+  }
+
+  if (!updated || updated.length === 0) {
+    return NextResponse.json(
+      { error: 'eval_result_id not found.' },
+      { status: 400 }
     )
   }
 
