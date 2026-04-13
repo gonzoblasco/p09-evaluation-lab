@@ -1,149 +1,243 @@
-# AGENT_TASKS.md — P08 Content Pipeline
+# AGENT_TASKS.md — P09 Evaluation Lab
 
-## Estado general
+## Contexto
 
-- Fase actual: 4 — Cierre
-- Última task completada: T11
-- Próxima task: —
+Framework para testear y comparar variantes de prompts contra casos de prueba
+orientados a SoporteML. Cada test case representa una interacción real:
+pregunta de comprador + contexto del vendedor → respuesta esperada.
 
-## Contexto del proyecto
+## Skills a crear en este proyecto
 
-Pipeline multi-agente secuencial: idea → research → draft → edit → SEO check → publish.
-Cada agente recibe el output del anterior como input estructurado (handoff explícito).
-UI: dashboard Next.js para triggear el pipeline y ver el progreso por etapa.
-Output final: archivo markdown listo para publicar.
+- `prompt-evaluator`: corre un prompt contra un test case, retorna resultado structured
+- `llm-judge`: evalúa output vs expected usando LLM como juez
+- `batch-orchestrator`: coordina N prompts × M test cases en paralelo
 
-Stack: Next.js 16 · TypeScript · Tailwind · shadcn/ui · Anthropic API
-Sin Supabase · Sin webhooks · Sin MCP externo
+## Patrón de ejecución
 
-## Workflow de branches y PRs
-
-Cada task se implementa en su propio branch:
-git checkout -b task/T01-nombre
-Commit + push + PR a main.
-Correr pr-review skill antes de mergear.
-Mergear solo cuando pr-review aprueba.
+Cada tarea: feature branch → implementar → commit → PR → pr-review skill → merge
 
 ---
 
-## FASE 1 — Scaffold + limpieza
+## TASK 01 — Schema y migraciones Supabase
 
-### T01 — Limpieza de P07
+**Entregable:** Schema ejecutado en Supabase con todas las tablas base.
 
-- Eliminar `app/api/webhook/`
-- Eliminar `lib/github.ts`, `lib/orchestrator.ts`, `lib/agents/`
-- Limpiar `package.json`: quitar dependencias no usadas de P07
-- Actualizar `.env.local.example` con solo `ANTHROPIC_API_KEY`
-- Actualizar `CLAUDE.md` y `README.md` con contexto de P08
-- Branch: `task/T01-scaffold`
-- Status: [x] completo
+**Tablas:**
 
----
+- `test_cases`: id, title, buyer_question, seller_context, expected_response, category, created_at
+- `prompt_variants`: id, name, system_prompt, version, is_active, created_at
+- `eval_runs`: id, name, status (pending/running/completed/failed), created_at
+- `eval_results`: id, run_id, test_case_id, prompt_variant_id, actual_response, judge_score (0-1), judge_reasoning, latency_ms, tokens_used, created_at
 
-## FASE 2 — Core del pipeline
+**Criterio de aceptación:**
 
-### T02 — Tipos y contratos de handoff
-
-- Crear `lib/pipeline/types.ts`
-- Definir `PipelineStage`, `StageInput`, `StageOutput`, `PipelineRun`, `StageResult`
-- Branch: `task/T02-types`
-- Status: [x] completo
-
-### T03 — Agentes del pipeline (6 agentes)
-
-- Crear `lib/pipeline/agents/`: idea, research, draft, edit, seo, publish
-- Cada agente: función async `run(input: StageInput): Promise<StageOutput>`
-- Modelo: claude-sonnet-4-6, max_tokens: 2000
-- Branch: `task/T03-agents`
-- Status: [x] completo
-
-### T04 — Orquestador secuencial
-
-- Crear `lib/pipeline/orchestrator.ts`
-- Ejecuta los 6 agentes en secuencia, pasando output → input
-- Emite eventos de progreso por stage via callback `onProgress`
-- Maneja errores por stage sin abortar el pipeline completo
-- Persiste el run en `output/{runId}.json`
-- Branch: `task/T04-orchestrator`
-- Status: [x] completo
-
-### T05 — API route del pipeline
-
-- Crear `app/api/pipeline/route.ts`
-- POST: recibe `{ topic: string }`, lanza el pipeline, retorna SSE con progreso
-- Branch: `task/T05-api`
-- Status: [x] completo
+- Migraciones en `/supabase/migrations/`
+- Tablas visibles en Supabase dashboard
+- Types TypeScript generados en `/types/database.ts`
 
 ---
 
-## FASE 3 — UI
+## TASK 02 — Test Cases CRUD
 
-### T06 — Dashboard principal
+**Entregable:** UI para gestionar test cases con seed de datos de ejemplo.
 
-- `app/dashboard/page.tsx` — formulario de input + botón "Run Pipeline"
-- `components/StageCard.tsx` — card por stage con estado y contenido
-- Streaming del progreso via SSE en tiempo real
-- Branch: `task/T06-ui`
-- Status: [x] completo
+**Features:**
 
-### T07 — Output viewer
+- Listado de test cases con filtro por categoría
+- Formulario crear/editar: buyer_question, seller_context, expected_response, category
+- Delete con confirmación
+- Seed: mínimo 10 test cases reales de SoporteML (garantía, envío, precio, disponibilidad)
 
-- `components/OutputViewer.tsx` — markdown renderizado con react-markdown
-- Botón de descarga del archivo `.md`
-- Branch: `task/T07-output`
-- Status: [x] completo
+**Ruta:** `/dashboard/test-cases`
 
----
+**Criterio de aceptación:**
 
-## FASE 4 — Skills + cierre
-
-### T08 — Skill: content-pipeline
-
-- Crear `.agents/skills/content-pipeline/SKILL.md`
-- Documenta el patrón de pipeline secuencial con handoffs
-- Branch: `task/T08-skill-pipeline`
-- Status: [x] completo
-
-### T09 — Skill: seo-agent
-
-- Crear `.agents/skills/seo-agent/SKILL.md`
-- Branch: `task/T09-skill-seo`
-- Status: [x] completo
-
-### T10 — PR Review final
-
-- Invocar `@.agents/skills/pr-review/SKILL.md` sobre el estado completo del repo
-- Resolver todos los issues bloqueantes antes de cerrar
-- Branch: `task/T10-pr-review`
-- Status: [x] completo
-
-### T11 — Commit de cierre
-
-- Marcar todas las tasks como [x]
-- Agregar sección de Cierre con fecha, estado, deuda documentada
-- Branch: `task/T11-close`
-- Status: [x] completo
+- CRUD completo funcionando contra Supabase
+- Al menos 3 categorías en el seed (garantía, envío, devoluciones)
 
 ---
 
-## Decisiones de arquitectura
+## TASK 03 — Prompt Variants CRUD
 
-- Pipeline secuencial (no paralelo) — el output de cada stage alimenta el siguiente
-- SSE para streaming del progreso al frontend — mismo patrón que P03
-- Sin persistencia en DB — los runs se guardan como archivos markdown en /output
-- Errores por stage: el pipeline continúa con el output parcial disponible
+**Entregable:** UI para gestionar variantes de system prompt.
 
-## Deuda documentada desde P07
+**Features:**
 
-- Validación de env vars en startup — pendiente para P09
-- User-Agent en clientes HTTP — pendiente para P09
+- Listado de variantes con badge de versión
+- Editor de system prompt con preview de variables disponibles
+- Toggle is_active
+- Seed: 3 variantes iniciales con diferente nivel de formalidad/detalle
+
+**Variables del sistema prompt:**
+
+- `{{buyer_question}}` — pregunta del comprador
+- `{{seller_context}}` — contexto del vendedor
+
+**Ruta:** `/dashboard/prompt-variants`
+
+**Criterio de aceptación:**
+
+- CRUD completo funcionando
+- Preview muestra cómo quedaría el prompt con variables interpoladas
 
 ---
 
-## Cierre
+## TASK 04 — Single Evaluator + skill `prompt-evaluator`
 
-- Fecha: 2026-04-10
-- Estado: COMPLETO
-- PR Review: aprobado con fixes aplicados
-- Issues bloqueantes resueltos: restos de P07 eliminados, output/ en .gitignore, redirect en home, import alias corregido, markdownComponents extraído
-- Deuda documentada: Anthropic client compartido (una instancia por agente actualmente), sin tests para agentes ni orquestador
+**Entregable:** Endpoint que corre un prompt variant contra un test case + skill documentado.
+
+**API:** `POST /api/eval/single`
+
+```json
+// Request
+{ "prompt_variant_id": "uuid", "test_case_id": "uuid" }
+
+// Response
+{
+  "actual_response": "string",
+  "latency_ms": 1240,
+  "tokens_used": 312,
+  "model": "claude-sonnet-4-6"
+}
+```
+
+**Skill:** `.agents/skills/prompt-evaluator/SKILL.md`
+
+**Criterio de aceptación:**
+
+- Llama a Anthropic API con el system prompt interpolado
+- Guarda resultado en `eval_results`
+- Manejo de errores con status estructurado
+
+---
+
+## TASK 05 — LLM Judge + skill `llm-judge`
+
+**Entregable:** Endpoint que evalúa un resultado con un segundo LLM como juez + skill documentado.
+
+**API:** `POST /api/eval/judge`
+
+```json
+// Request
+{
+  "eval_result_id": "uuid",
+  "expected_response": "string",
+  "actual_response": "string",
+  "buyer_question": "string"
+}
+
+// Response
+{
+  "score": 0.85,
+  "reasoning": "La respuesta cubre el punto principal pero omite...",
+  "criteria": {
+    "accuracy": 0.9,
+    "completeness": 0.8,
+    "tone": 0.85
+  }
+}
+```
+
+**Criterio del juez (system prompt del judge):**
+Evaluar en 3 dimensiones: precisión (¿responde la pregunta?), completitud (¿cubre todos los puntos?), tono (¿apropiado para soporte ML?).
+
+**Skill:** `.agents/skills/llm-judge/SKILL.md`
+
+**Criterio de aceptación:**
+
+- Score entre 0 y 1
+- Reasoning explicando el puntaje
+- Score guardado en `eval_results.judge_score`
+
+---
+
+## TASK 06 — Batch Runner + skill `batch-orchestrator`
+
+**Entregable:** Endpoint que ejecuta N prompt variants × M test cases en paralelo.
+
+**API:** `POST /api/eval/batch`
+
+```json
+// Request
+{
+  "run_name": "Test formalidad v2",
+  "prompt_variant_ids": ["uuid1", "uuid2"],
+  "test_case_ids": ["uuid1", "uuid2", "uuid3"]
+}
+
+// Response (inmediato)
+{ "run_id": "uuid", "status": "running", "total_evals": 6 }
+```
+
+**Comportamiento:**
+
+- Respuesta inmediata con `run_id`
+- Ejecución async con `after()` (patrón P07/P08)
+- `Promise.allSettled` para no cancelar el batch si un eval falla
+- Actualiza `eval_runs.status` al completar
+
+**Skill:** `.agents/skills/batch-orchestrator/SKILL.md`
+
+**Criterio de aceptación:**
+
+- No bloquea el request
+- Tolerante a fallos individuales
+- Estado del run actualizado en tiempo real (polling cada 2s desde el cliente)
+
+---
+
+## TASK 07 — Dashboard de resultados
+
+**Entregable:** UI para lanzar runs y ver resultados.
+
+**Features:**
+
+- Panel "Nueva evaluación": seleccionar variantes + test cases + nombre del run
+- Listado de runs con status badge (pending/running/completed/failed)
+- Vista de run: tabla con todos los resultados, score del judge, latencia
+- Comparación side-by-side de 2 prompt variants para el mismo test case
+
+**Ruta:** `/dashboard` (home) + `/dashboard/runs/[id]`
+
+**Criterio de aceptación:**
+
+- Polling automático mientras el run está en estado `running`
+- Score promedio visible por variante
+- Comparación muestra ambas respuestas + score + reasoning del judge
+
+---
+
+## TASK 08 — Métricas agregadas
+
+**Entregable:** Sección de métricas por run con insights comparativos.
+
+**Métricas a mostrar:**
+
+- Score promedio por prompt variant
+- Latencia promedio y p95
+- Tokens usados (costo estimado en USD)
+- Win rate: qué variante ganó más test cases
+- Breakdown por categoría (garantía vs envío vs devoluciones)
+
+**Ruta:** `/dashboard/runs/[id]/metrics`
+
+**Criterio de aceptación:**
+
+- Gráfico de barras comparando scores por variante
+- Tabla de breakdown por categoría
+- Costo estimado calculado con pricing actual de claude-sonnet-4-6
+
+---
+
+## TASK 09 — PR Review final + documentación
+
+**Entregable:** Review completo del proyecto + knowledge base actualizada.
+
+**Checklist:**
+
+- [ ] Correr `pr-review` skill sobre el repo completo
+- [ ] Resolver todos los findings
+- [ ] Actualizar `.knowledge/architecture.md` con diagrama del flujo de evaluación
+- [ ] Documentar los 3 skills creados con ejemplos de uso
+- [ ] `README.md` con instrucciones de setup y uso
+- [ ] Commit final con tag `v1.0.0`
