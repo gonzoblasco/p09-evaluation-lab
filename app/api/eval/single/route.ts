@@ -3,10 +3,14 @@ import Anthropic from '@anthropic-ai/sdk'
 import { createClient } from '@/lib/supabase/server'
 
 const MODEL = 'claude-sonnet-4-6'
+const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i
 
-const anthropic = new Anthropic({
-  apiKey: process.env.ANTHROPIC_API_KEY,
-})
+function getAnthropicClient(): Anthropic {
+  if (!process.env.ANTHROPIC_API_KEY) {
+    throw new Error('ANTHROPIC_API_KEY is not set.')
+  }
+  return new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY })
+}
 
 function interpolate(template: string, vars: Record<string, string>): string {
   return template
@@ -29,6 +33,9 @@ export async function POST(req: NextRequest) {
   }
   if (!test_case_id || typeof test_case_id !== 'string') {
     return NextResponse.json({ error: 'test_case_id is required.' }, { status: 400 })
+  }
+  if (run_id !== undefined && (typeof run_id !== 'string' || !UUID_RE.test(run_id))) {
+    return NextResponse.json({ error: 'run_id must be a valid UUID.' }, { status: 400 })
   }
 
   const supabase = await createClient()
@@ -54,6 +61,14 @@ export async function POST(req: NextRequest) {
     seller_context: testCase.seller_context,
   })
 
+  let anthropic: Anthropic
+  try {
+    anthropic = getAnthropicClient()
+  } catch (err) {
+    const detail = err instanceof Error ? err.message : 'Anthropic client init error.'
+    return NextResponse.json({ error: detail }, { status: 500 })
+  }
+
   const startMs = Date.now()
 
   let message: Anthropic.Message
@@ -75,12 +90,10 @@ export async function POST(req: NextRequest) {
   const tokens_used =
     (message.usage?.input_tokens ?? 0) + (message.usage?.output_tokens ?? 0)
 
-  // Resolve run_id: use the provided one (from batch runner) or create a standalone run
-  let resolvedRunId: string | null = null
+  // Resolve run_id: use provided (batch mode) or create a standalone run
+  let resolvedRunId: string | null = typeof run_id === 'string' ? run_id : null
 
-  if (run_id && typeof run_id === 'string') {
-    resolvedRunId = run_id
-  } else {
+  if (!resolvedRunId) {
     const { data: standaloneRun, error: runError } = await supabase
       .from('eval_runs')
       .insert({ name: 'standalone', status: 'completed' })
@@ -92,6 +105,7 @@ export async function POST(req: NextRequest) {
   }
 
   let eval_result_id: string | null = null
+  let persist_error: string | null = null
 
   if (resolvedRunId) {
     const { data: evalResult, error: insertError } = await supabase
@@ -108,7 +122,7 @@ export async function POST(req: NextRequest) {
       .single()
 
     if (insertError) {
-      console.error('eval_results insert error:', insertError.message)
+      persist_error = insertError.message
     } else {
       eval_result_id = evalResult?.id ?? null
     }
@@ -120,5 +134,6 @@ export async function POST(req: NextRequest) {
     tokens_used,
     model: MODEL,
     eval_result_id,
+    ...(persist_error ? { _warning: `Result not persisted: ${persist_error}` } : {}),
   })
 }
