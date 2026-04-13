@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useTransition } from 'react'
+import { useState, useTransition, useRef } from 'react'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import {
@@ -22,23 +22,37 @@ interface PromptVariantsListProps {
 
 function ToggleButton({ variant }: { variant: PromptVariant }) {
   const [pending, startTransition] = useTransition()
+  const [error, setError] = useState<string | null>(null)
+  const errorTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
 
   function handleToggle() {
+    setError(null)
     startTransition(async () => {
-      await togglePromptVariantActive(variant.id, !variant.is_active)
+      try {
+        await togglePromptVariantActive(variant.id, !variant.is_active)
+      } catch (e) {
+        const msg = e instanceof Error ? e.message : 'Error al actualizar.'
+        setError(msg)
+        // auto-clear error after 4s
+        if (errorTimerRef.current) clearTimeout(errorTimerRef.current)
+        errorTimerRef.current = setTimeout(() => setError(null), 4000)
+      }
     })
   }
 
   return (
-    <Button
-      size="sm"
-      variant="ghost"
-      onClick={handleToggle}
-      disabled={pending}
-      className="px-2"
-    >
-      {pending ? '…' : variant.is_active ? 'Desactivar' : 'Activar'}
-    </Button>
+    <div className="flex flex-col items-end gap-0.5">
+      <Button
+        size="sm"
+        variant="ghost"
+        onClick={handleToggle}
+        disabled={pending}
+        className="px-2"
+      >
+        {pending ? '…' : variant.is_active ? 'Desactivar' : 'Activar'}
+      </Button>
+      {error && <span className="text-xs text-red-600 max-w-[120px] text-right">{error}</span>}
+    </div>
   )
 }
 
