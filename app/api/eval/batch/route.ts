@@ -12,6 +12,19 @@ async function runBatch(
 ): Promise<void> {
   const supabase = createServiceClient()
 
+  try {
+    await runBatchInner(supabase, runId, variantIds, testCaseIds)
+  } catch {
+    await supabase.from('eval_runs').update({ status: 'failed' }).eq('id', runId)
+  }
+}
+
+async function runBatchInner(
+  supabase: ReturnType<typeof createServiceClient>,
+  runId: string,
+  variantIds: string[],
+  testCaseIds: string[]
+): Promise<void> {
   await supabase
     .from('eval_runs')
     .update({ status: 'running' })
