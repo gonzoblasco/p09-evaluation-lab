@@ -73,13 +73,13 @@ request
 
 - Modelo fijo: `claude-sonnet-4-6` (constante `MODEL` en el route)
 - `max_tokens`: 1024 — suficiente para respuestas de soporte
-- Los evals standalone usan `run_id = '00000000-0000-0000-0000-000000000000'` (UUID placeholder)
-- Si el insert en `eval_results` falla, el endpoint igual retorna 200 con el resultado (no falla la evaluación por un error de persistencia)
+- Los evals standalone crean un `eval_run` real con `{ name: 'standalone', status: 'completed' }` y usan su ID
+- Si el insert en `eval_results` falla, el endpoint igual retorna 200 con el resultado (`eval_result_id: null`)
 - `tokens_used = input_tokens + output_tokens` (total de la llamada)
 
 ## Uso desde el batch orchestrator
 
-El batch orchestrator (TASK 06) llama a este mismo endpoint para cada combinación `(prompt_variant_id, test_case_id)` de un run, pasando el `run_id` real en vez del placeholder.
+El batch orchestrator (TASK 06) llama a `runSingleEval()` directamente (no via HTTP) para cada combinación `(prompt_variant_id, test_case_id)` de un run, pasando el `run_id` del batch.
 
 ## Ejemplo de uso manual
 

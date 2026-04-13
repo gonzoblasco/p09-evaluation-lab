@@ -106,11 +106,9 @@ runBatch() [corre en after(), fuera del request context]:
 
 ## Polling del estado
 
-El cliente puede hacer polling del estado del run:
-
-```
-GET /api/eval/runs/:run_id/status  (TASK 07)
-```
+El cliente hace polling via `router.refresh()` en el dashboard (Next.js RSC), no via un endpoint dedicado.
+La página `/dashboard/runs/[id]` tiene `dynamic = 'force-dynamic'` y el componente `RunDetail` llama a
+`router.refresh()` cada 2 segundos mientras `status === 'running' || 'pending'`.
 
 Estados del ciclo de vida: `pending` → `running` → `completed` | `failed`
 

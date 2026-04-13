@@ -74,7 +74,8 @@ request
   → validateJudgeOutput() — valida tipos y clampea 0-1
   → recalcular score como promedio de criteria (server-side)
   → UPDATE eval_results SET judge_score, judge_reasoning WHERE id = eval_result_id
-  → si update falla → 200 con _warning (no bloquear el resultado)
+  → si 0 filas actualizadas → throw 'NOT_FOUND:eval_result_id' → 400
+  → si error de DB → throw 'DB_ERROR:<msg>' → 502
   → retornar { score, reasoning, criteria }
 ```
 
@@ -93,11 +94,12 @@ El system prompt instruye al modelo a devolver **únicamente JSON** sin markdown
 - `max_tokens: 512` — suficiente para el JSON de evaluación
 - `score` es recalculado server-side como `(accuracy + completeness + tone) / 3` — no se confía en el score del modelo para evitar inconsistencias
 - Los criterios son clampados a `[0, 1]` por `validateJudgeOutput()`
-- Si el UPDATE a `eval_results` falla, el resultado igual se devuelve con `_warning` (no se bloquea)
+- Si el UPDATE afecta 0 filas (ID no existe) → lanza `NOT_FOUND:eval_result_id` → route mapea a 400
+- Si hay error de DB → lanza `DB_ERROR:<msg>` → route mapea a 502
 
 ## Uso desde el batch orchestrator
 
-El batch orchestrator (TASK 06) llama a este endpoint después de cada `POST /api/eval/single` para puntuar automáticamente cada resultado.
+El batch orchestrator (TASK 06) llama a `runJudge()` directamente (no via HTTP) después de cada `runSingleEval()` para puntuar automáticamente cada resultado.
 
 ```
 batch run
