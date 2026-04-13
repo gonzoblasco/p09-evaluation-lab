@@ -1,6 +1,6 @@
 'use client'
 
-import { useTransition } from 'react'
+import { useTransition, useState } from 'react'
 import { Button } from '@/components/ui/button'
 import {
   Dialog,
@@ -19,12 +19,18 @@ interface DeleteConfirmProps {
 
 export function DeleteConfirm({ id, onClose }: DeleteConfirmProps) {
   const [pending, startTransition] = useTransition()
+  const [error, setError] = useState<string | null>(null)
 
   function handleConfirm() {
     if (!id) return
+    setError(null)
     startTransition(async () => {
-      await deleteTestCase(id)
-      onClose()
+      try {
+        await deleteTestCase(id)
+        onClose()
+      } catch (e) {
+        setError(e instanceof Error ? e.message : 'Error al eliminar.')
+      }
     })
   }
 
@@ -37,6 +43,9 @@ export function DeleteConfirm({ id, onClose }: DeleteConfirmProps) {
             Esta acción no se puede deshacer. El test case será eliminado permanentemente.
           </DialogDescription>
         </DialogHeader>
+        {error && (
+          <p className="text-sm text-red-600 px-1">{error}</p>
+        )}
         <DialogFooter>
           <Button variant="outline" onClick={onClose} disabled={pending}>
             Cancelar
