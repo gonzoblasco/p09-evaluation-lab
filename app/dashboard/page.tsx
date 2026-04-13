@@ -1,156 +1,51 @@
-'use client';
+import { createClient } from '@/lib/supabase/server'
+import { NewEvalPanel } from './new-eval-panel'
+import { RunsList } from './runs-list'
 
-import { useState } from 'react';
-import { StageCard } from '@/components/StageCard';
-import { OutputViewer } from '@/components/OutputViewer';
+export default async function DashboardPage() {
+  const supabase = await createClient()
 
-type StageStatus = 'running' | 'completed' | 'failed';
+  const [variantsResult, testCasesResult, runsResult] = await Promise.allSettled([
+    supabase
+      .from('prompt_variants')
+      .select('id, name, version')
+      .eq('is_active', true)
+      .order('name'),
+    supabase
+      .from('test_cases')
+      .select('id, title, category')
+      .order('category')
+      .order('title'),
+    supabase
+      .from('eval_runs')
+      .select('*')
+      .neq('name', 'standalone')
+      .order('created_at', { ascending: false })
+      .limit(20),
+  ])
 
-interface StageEvent {
-  stage: string;
-  status: StageStatus;
-  content: string;
-  error?: string;
-}
-
-export default function DashboardPage() {
-  const [topic, setTopic] = useState('');
-  const [stages, setStages] = useState<StageEvent[]>([]);
-  const [running, setRunning] = useState(false);
-  const [runId, setRunId] = useState<string | null>(null);
-  const [publishContent, setPublishContent] = useState<string | null>(null);
-  const [error, setError] = useState<string | null>(null);
-
-  const handleRun = async () => {
-    if (!topic.trim() || running) return;
-
-    setStages([]);
-    setRunId(null);
-    setPublishContent(null);
-    setError(null);
-    setRunning(true);
-
-    try {
-      const response = await fetch('/api/pipeline', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ topic }),
-      });
-
-      if (!response.ok || !response.body) {
-        setError('Error al iniciar el pipeline.');
-        setRunning(false);
-        return;
-      }
-
-      const reader = response.body.getReader();
-      const decoder = new TextDecoder();
-      let buffer = '';
-
-      while (true) {
-        const { done, value } = await reader.read();
-        if (done) break;
-
-        buffer += decoder.decode(value, { stream: true });
-        const parts = buffer.split('\n\n');
-        buffer = parts.pop() ?? '';
-
-        for (const part of parts) {
-          const line = part.replace(/^data: /, '').trim();
-          if (!line) continue;
-
-          try {
-            const event = JSON.parse(line);
-
-            if (event.type === 'stage') {
-              setStages((prev) => {
-                const idx = prev.findIndex((s) => s.stage === event.stage);
-                const updated: StageEvent = {
-                  stage: event.stage,
-                  status: event.status,
-                  content: event.content ?? '',
-                  error: event.error,
-                };
-                if (idx >= 0) {
-                  const next = [...prev];
-                  next[idx] = updated;
-                  return next;
-                }
-                return [...prev, updated];
-              });
-              if (event.stage === 'publish' && event.status === 'completed') {
-                setPublishContent(event.content);
-              }
-            } else if (event.type === 'done') {
-              setRunId(event.runId);
-            } else if (event.type === 'error') {
-              setError(event.message ?? 'Pipeline error');
-            }
-          } catch {
-            // ignore malformed SSE lines
-          }
-        }
-      }
-    } catch {
-      setError('Error de conexión.');
-    } finally {
-      setRunning(false);
-    }
-  };
+  const variants =
+    variantsResult.status === 'fulfilled' ? (variantsResult.value.data ?? []) : []
+  const testCases =
+    testCasesResult.status === 'fulfilled' ? (testCasesResult.value.data ?? []) : []
+  const runs =
+    runsResult.status === 'fulfilled' ? (runsResult.value.data ?? []) : []
 
   return (
-    <main className="max-w-2xl mx-auto px-4 py-10">
-      <h1 className="text-2xl font-bold mb-6">Content Pipeline</h1>
-
-      <div className="flex gap-2 mb-8">
-        <input
-          type="text"
-          value={topic}
-          onChange={(e) => setTopic(e.target.value)}
-          placeholder="Ingresá un tema..."
-          disabled={running}
-          className="flex-1 border border-gray-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-400 disabled:opacity-50"
-        />
-        <button
-          onClick={handleRun}
-          disabled={running || !topic.trim()}
-          className="px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded-md hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed"
-        >
-          {running ? 'Ejecutando…' : 'Run Pipeline'}
-        </button>
+    <div className="max-w-5xl mx-auto px-4 py-10 space-y-10">
+      <div>
+        <h1 className="text-2xl font-bold">Evaluation Lab</h1>
+        <p className="text-muted-foreground text-sm mt-1">
+          Compará variantes de prompts contra casos de prueba de SoporteML.
+        </p>
       </div>
 
-      {error && (
-        <div className="mb-4 p-3 bg-red-50 border border-red-200 text-red-700 text-sm rounded-md">
-          {error}
-        </div>
-      )}
+      <NewEvalPanel variants={variants} testCases={testCases} />
 
-      {stages.length > 0 && (
-        <div className="flex flex-col gap-3">
-          {stages.map((s) => (
-            <StageCard
-              key={s.stage}
-              stage={s.stage}
-              status={s.status}
-              content={s.content || s.error}
-            />
-          ))}
-        </div>
-      )}
-
-      {runId && (
-        <div className="mt-6 p-4 bg-green-50 border border-green-200 rounded-md text-sm text-green-800">
-          Pipeline completado. Run ID: <span className="font-mono">{runId}</span>
-        </div>
-      )}
-
-      {runId && publishContent && (
-        <OutputViewer
-          content={publishContent}
-          filename={`${topic.toLowerCase().replace(/\s+/g, '-').slice(0, 40)}-${runId}.md`}
-        />
-      )}
-    </main>
-  );
+      <section>
+        <h2 className="text-lg font-semibold mb-4">Runs recientes</h2>
+        <RunsList runs={runs} />
+      </section>
+    </div>
+  )
 }
