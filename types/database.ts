@@ -148,19 +148,19 @@ export type Database = {
           created_at: string
           id: string
           name: string
-          status: string
+          status: "pending" | "running" | "completed" | "failed"
         }
         Insert: {
           created_at?: string
           id?: string
           name: string
-          status?: string
+          status?: "pending" | "running" | "completed" | "failed"
         }
         Update: {
           created_at?: string
           id?: string
           name?: string
-          status?: string
+          status?: "pending" | "running" | "completed" | "failed"
         }
         Relationships: []
       }
