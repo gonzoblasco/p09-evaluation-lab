@@ -1,6 +1,6 @@
 import { notFound } from 'next/navigation'
 import Link from 'next/link'
-import { buttonVariants } from '@/components/ui/button'
+import { buttonVariants } from '@/components/ui/button-variants'
 import { createClient } from '@/lib/supabase/server'
 import { ScoreBarChart } from './score-bar-chart'
 
