@@ -48,20 +48,20 @@
     "vite-tsconfig-paths": "^6.1.1",
     "vitest": "^4.1.2"
   },
-  "description": "Bot de GitHub que analiza Pull Requests con subagents paralelos y comenta los resultados automáticamente.",
+  "description": "Framework para testear y comparar variantes de prompts contra casos de prueba orientados a SoporteML.",
   "main": "index.js",
   "directories": {
     "lib": "lib"
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/gonzoblasco/p07-ai-code-reviewer.git"
+    "url": "git+https://github.com/gonzoblasco/p09-evaluation-lab.git"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "bugs": {
-    "url": "https://github.com/gonzoblasco/p07-ai-code-reviewer/issues"
+    "url": "https://github.com/gonzoblasco/p09-evaluation-lab/issues"
   },
-  "homepage": "https://github.com/gonzoblasco/p07-ai-code-reviewer#readme"
+  "homepage": "https://github.com/gonzoblasco/p09-evaluation-lab#readme"
 }

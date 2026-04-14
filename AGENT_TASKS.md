@@ -225,7 +225,7 @@ Evaluar en 3 dimensiones: precisión (¿responde la pregunta?), completitud (¿c
 
 - Gráfico de barras comparando scores por variante
 - Tabla de breakdown por categoría
-- Costo estimado calculado con pricing actual de claude-sonnet-4-6
+- Costo estimado calculado con pricing actual de Claude 4.6 Sonnet
 
 ---
 

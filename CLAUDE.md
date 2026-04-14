@@ -1,7 +1,7 @@
 # P09 — Evaluation Lab
 
 Effort: medium (CLAUDE_CODE_DEFAULT_EFFORT=medium)
-Model: claude-sonnet-4-6
+Model: Claude 4.6 Sonnet
 
 ## Stack
 
